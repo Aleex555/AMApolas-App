@@ -2,7 +2,10 @@ package com.losamapolas.roscodrom;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Perfil implements Screen {
@@ -13,13 +16,18 @@ public class Perfil implements Screen {
         this.game = game;
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-    }
+        camera.setToOrtho(false, 550, 880);    }
 
     @Override
     public void show() {
 
-
+        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+        style.font = new BitmapFont();
+        style.fontColor = Color.CHARTREUSE;
+        game.font.draw(game.batch, "Perfil", 150, 700);
+        TextField field = new TextField("", style);
+        field.setText("Test");
+        field.setWidth(150);
     }
 
     @Override
@@ -30,15 +38,13 @@ public class Perfil implements Screen {
         game.font.getData().setScale(2);
         game.font.setColor(1, 1, 1, 1);
         game.batch.begin();
-        game.font.draw(game.batch, "Adios ", 250, 300);
-        game.font.getData().setScale(1);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 250, 200);
+
+
+
+
         game.batch.end();
 
-        if (Gdx.input.isTouched()) {
 
-            dispose();
-        }
 
     }
 

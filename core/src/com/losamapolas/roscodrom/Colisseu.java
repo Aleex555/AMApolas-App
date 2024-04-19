@@ -13,7 +13,7 @@ public class Colisseu implements Screen {
         this.game = game;
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
+        camera.setToOrtho(false, 550, 880);
     }
 
     @Override
@@ -30,15 +30,12 @@ public class Colisseu implements Screen {
         game.font.getData().setScale(2);
         game.font.setColor(1, 1, 1, 1);
         game.batch.begin();
-        game.font.draw(game.batch, " ", 250, 300);
-        game.font.getData().setScale(1);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 250, 200);
+        game.font.draw(game.batch, "Colisseu", 150, 700);
+
+
         game.batch.end();
 
-        if (Gdx.input.isTouched()) {
 
-            dispose();
-        }
 
     }
 
