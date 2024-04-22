@@ -73,7 +73,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
             }
         });
 
-        // Agregar botones al Stage en una disposición vertical
+
         stage.addActor(individual);
         stage.addActor(multijugador);
         stage.addActor(colisseu);
@@ -103,9 +103,6 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
-
-
-
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
 
