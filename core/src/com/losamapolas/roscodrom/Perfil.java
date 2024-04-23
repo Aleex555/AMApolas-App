@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Base64;
 
 public class Perfil extends ApplicationAdapter implements Screen {
@@ -52,7 +54,6 @@ public class Perfil extends ApplicationAdapter implements Screen {
 
     @Override
     public void create() {
-
 
 
     }
@@ -116,7 +117,7 @@ public class Perfil extends ApplicationAdapter implements Screen {
                     byte[] imageBytes = Gdx.files.internal(imagePath).readBytes();
 
                     String base64Image = encodeImageToBase64(imageBytes);
-                    avatar=base64Image;
+                    avatar=imagePath;
                     //System.out.println(base64Image);
 
                 }
@@ -139,20 +140,47 @@ public class Perfil extends ApplicationAdapter implements Screen {
                 tl= tel!= null ? tel.getText() : "";
                 avatar = avatar != null ? avatar : "";
 
-
-
                 if(!nick.isEmpty()  || !em.isEmpty() || !tl.isEmpty()|| !avatar.isEmpty()){
                     JSONObject json = new JSONObject();
                     try {
-                        json.put("nick", nick);
-                        json.put("em", em);
-                        json.put("tl", tl);
+                        String[] historial = new String[0];
+                        json.put("nickname", nick);
+                        json.put("email", em);
+                        json.put("phone_number", tl);
                         json.put("avatar", avatar);
+                        json.put("historial_partides",historial );
+
+                        String apiUrl = "https://roscodrom6.ieti.site/api/user/register";
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    NetworkUtils networkUtils = new NetworkUtils();
+                                    final String response = networkUtils.post(apiUrl, json.toString());
+                                    JSONObject jsonResponse = new JSONObject(response);
+                                    final String message = jsonResponse.getString("api_key");  // Asume que "message" es un campo que devuelve tu servidor
+
+                                    // Ejecutar en el hilo de renderizado de libGDX
+                                    Gdx.app.postRunnable(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // Código para actualizar UI aquí
+                                            System.out.println(message);
+                                        }
+                                    });
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+
+
+
 
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-
 
                     // Convertir el objeto JSON a String
                     String jsonString = json.toString();
@@ -165,7 +193,6 @@ public class Perfil extends ApplicationAdapter implements Screen {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
 
                 }
                 else {
@@ -263,7 +290,7 @@ public class Perfil extends ApplicationAdapter implements Screen {
         stage.dispose();
     }
 
-        // Lee los bytes de un archivo
+
 
     }
 

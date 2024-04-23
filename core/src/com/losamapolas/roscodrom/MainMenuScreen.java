@@ -50,7 +50,14 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
         multijugador.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new Multijugador(game));
+                if (Gdx.files.internal("assets/perfil.json").exists()){
+                    game.setScreen(new Multijugador(game));
+                }
+                else {
+                    game.setScreen(new Perfil(game));
+
+                }
+
             }
         });
         colisseu.addListener(new ClickListener() {
@@ -69,7 +76,15 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
         perfil.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new Perfil(game));
+                if (Gdx.files.internal("perfil.json").exists()){
+                    game.setScreen(new Perfilfet(game));
+                    System.out.println("hola1 ");
+                }else {
+                    game.setScreen(new Perfil(game));
+                    System.out.println("hola2 ");
+                }
+
+
             }
         });
 

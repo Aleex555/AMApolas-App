@@ -116,6 +116,8 @@ project(":core") {
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         implementation 'org.json:json:20210307'
+        implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+        implementation 'com.squareup.okhttp3:okhttp:4.9.0'
         
     }
 }
