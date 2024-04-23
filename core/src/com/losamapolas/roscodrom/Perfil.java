@@ -1,22 +1,34 @@
 package com.losamapolas.roscodrom;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Base64;
+
 public class Perfil extends ApplicationAdapter implements Screen {
+
     final Roscodrom game;
     SpriteBatch batch;
     BitmapFont font;
@@ -26,6 +38,11 @@ public class Perfil extends ApplicationAdapter implements Screen {
     TextField tel;
     Skin skin;
     OrthographicCamera camera;
+
+    String nick;
+    String em;
+    String tl;
+    String avatar;
 
     public Perfil(final Roscodrom game) {
         this.game = game;
@@ -49,19 +66,14 @@ public class Perfil extends ApplicationAdapter implements Screen {
 
         nickname = new TextField("", skin);
         TextButton main = new TextButton("Back", skin);
-        TextButton enviar = new TextButton("Enviar", skin);
+
         main.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new MainMenuScreen(game));
             }
         });
-        enviar.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainMenuScreen(game));
-            }
-        });
+
 
         nickname.setMessageText("Ingrese texto aquí");
         nickname.setPosition(175, 600);
@@ -81,12 +93,97 @@ public class Perfil extends ApplicationAdapter implements Screen {
         tel.setSize(200, 50);
         tel.setColor(1,1,1,1);
 
-        //nickname.getText();
-        //email.getText();
-        //tel.getText();
+
+
+
+        for (int i = 1; i <= 4; i++) {
+            final int imageIndex = i;
+            Texture buttonImage = new Texture(Gdx.files.internal(i+".png"));
+            TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+            buttonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonImage));
+            buttonStyle.font = font;
+            TextButton a1 = new TextButton("", buttonStyle);
+            a1.setSize(100, 100);
+            a1.setPosition(0 +(i*100),200);
+
+            a1.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+
+
+                    String imagePath =imageIndex+ ".png";
+
+                    byte[] imageBytes = Gdx.files.internal(imagePath).readBytes();
+
+                    String base64Image = encodeImageToBase64(imageBytes);
+                    avatar=base64Image;
+                    //System.out.println(base64Image);
+
+                }
+            });
+
+            stage.addActor(a1);
+        }
+
+
+
+        TextButton enviar = new TextButton("Enviar", skin);
+
+
+        enviar.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+
+                nick=nickname!= null ? nickname.getText() : "";;
+                em = email!= null ? email.getText() : "";
+                tl= tel!= null ? tel.getText() : "";
+                avatar = avatar != null ? avatar : "";
+
+
+
+                if(!nick.isEmpty()  || !em.isEmpty() || !tl.isEmpty()|| !avatar.isEmpty()){
+                    JSONObject json = new JSONObject();
+                    try {
+                        json.put("nick", nick);
+                        json.put("em", em);
+                        json.put("tl", tl);
+                        json.put("avatar", avatar);
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                    // Convertir el objeto JSON a String
+                    String jsonString = json.toString();
+
+                    // Haz lo que necesites con la cadena JSON
+                    System.out.println("JSON creado: " + jsonString);
+                    try (FileWriter file = new FileWriter("assets/perfil.json")) {
+                        file.write(jsonString);
+                        System.out.println("JSON guardado en perfil.json");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+                else {
+                    System.out.println("Faltan Datos");
+                }
+
+                game.setScreen(new MainMenuScreen(game));
+
+            }
+        });
+
 
         main.setPosition(30,810);
         enviar.setPosition(400,50);
+
+
+
+
         stage.addActor(main);
         stage.addActor(enviar);
         stage.addActor(nickname);
@@ -96,6 +193,25 @@ public class Perfil extends ApplicationAdapter implements Screen {
 
         Gdx.input.setInputProcessor(stage);
     }
+    private static byte[] readImageBytes(String imagePath) throws IOException {
+        File file = new File(imagePath);
+        FileInputStream fis = new FileInputStream(file);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fis.read(buf)) != -1) {
+            bos.write(buf, 0, bytesRead);
+        }
+        fis.close();
+        return bos.toByteArray();
+    }
+
+    // Método para codificar los bytes de la imagen en Base64
+    @SuppressWarnings("NewApi")
+    private static String encodeImageToBase64(byte[] imageBytes) {
+        return Base64.getEncoder().encodeToString(imageBytes);
+    }
+
 
     @Override
     public void render(float delta) {
@@ -146,4 +262,8 @@ public class Perfil extends ApplicationAdapter implements Screen {
         skin.dispose();
         stage.dispose();
     }
-}
+
+        // Lee los bytes de un archivo
+
+    }
+
