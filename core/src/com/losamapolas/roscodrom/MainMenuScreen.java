@@ -78,13 +78,11 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (Gdx.files.internal("perfil.json").exists()){
                     game.setScreen(new Perfilfet(game));
-                    System.out.println("hola1 ");
+
                 }else {
                     game.setScreen(new Perfil(game));
-                    System.out.println("hola2 ");
+
                 }
-
-
             }
         });
 
