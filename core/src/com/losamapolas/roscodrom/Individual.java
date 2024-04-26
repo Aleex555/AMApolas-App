@@ -1,10 +1,14 @@
 package com.losamapolas.roscodrom;
 
+import static javax.swing.UIManager.put;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -13,23 +17,47 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JFormattedTextField;
 
 public class Individual implements Screen {
+    private static Label correct;
+
+    // Lista para almacenar las palabras encontradas
+    static List<String> palabrasEncontradas = new ArrayList<>();
     final Roscodrom game;
     Skin skin;
     Stage stage;
+
     Label outputLabel;
+    String filePath = "DISC2/DISC2-LP.txt";
+    // Palabra a buscar
+    String targetWord ;
 
     OrthographicCamera camera;
+    private static final Map<Character, Integer> valoresLetras = new HashMap<Character, Integer>() {{
+        put('a', 1); put('b', 3); put('c', 3); put('d', 2); put('e', 1);
+        put('f', 4); put('g', 2); put('h', 4); put('i', 1); put('j', 8);
+        put('l', 1); put('m', 3); put('n', 1); put('o', 1);
+        put('p', 3); put('q', 8); put('r', 1); put('s', 1); put('t', 1);
+        put('u', 1); put('v', 4);  put('x', 8); put('y', 4);
+        put('z', 10);
+    }};
 
-    char[] con = {'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'};
+    char[] con = {'B', 'C', 'D', 'F', 'G', 'H', 'J', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V',  'X', 'Y', 'Z'};
     char[] voc = {'A', 'E', 'I', 'O', 'U'};
-    int n = 7;
+    int n = 10;
     Random random = new Random();
     char[] nuevaArray = new char[n];
     Set<Character> selectedLetters = new HashSet<>();
@@ -43,7 +71,13 @@ public class Individual implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 550, 880);
     }
-
+    private void resetButtons() {
+        for (Actor actor : stage.getActors()) {
+            if (actor instanceof TextButton) {
+                TextButton button = (TextButton) actor;
+                button.setStyle(skin.get("default", TextButton.TextButtonStyle.class));
+            }
+        }}
     @Override
     public void show() {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
@@ -64,11 +98,41 @@ public class Individual implements Screen {
         envia.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainMenuScreen(game));
+                    targetWord= String.valueOf(outputLabel.getText());
+                try {
+                    // Abrir el archivo y crear un BufferedReader para leerlo línea por línea
+                    BufferedReader reader = new BufferedReader(new FileReader(Gdx.files.internal("assets/"+filePath).file()));
+                    String line;
+
+                    // Leer todas las líneas del archivo y almacenarlas en un arreglo de Strings
+                    @SuppressWarnings("NewApi") String[] words = reader.lines().toArray(String[]::new);
+
+                    reader.close();
+
+                    Arrays.sort(words);
+                    int index = binarySearch(words, targetWord);
+
+                    // Comprobar si la palabra fue encontrada
+                    if (index != -1) {
+                        System.out.println(calcularPuntuacion(String.valueOf(outputLabel.getText())));
+                        System.out.println("La palabra '" + targetWord + "' fue encontrada " );
+                    } else {
+                        System.out.println("La palabra '" + targetWord + "' no fue encontrada ");
+                    }
+                    outputLabel.setText("");
+                    resetButtons();
+                    letrasPresionadas.clear();
+
+                } catch (IOException e) {
+                    System.err.println("Error al leer el archivo: " + e.getMessage());
+                }
+
+                calcularPuntuacion(String.valueOf(outputLabel.getText()));
+
             }
         });
         stage.addActor(envia);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 4; i++) {
             char selectedVowel;
             do {
                 selectedVowel = voc[random.nextInt(voc.length)];
@@ -78,7 +142,7 @@ public class Individual implements Screen {
         }
 
         // Agregar el resto de las consonantes aleatorias
-        for (int i = 2; i < n; i++) {
+        for (int i = 4; i < n; i++) {
             char selectedConsonant;
             do {
                 selectedConsonant = con[random.nextInt(con.length)];
@@ -126,10 +190,14 @@ public class Individual implements Screen {
                     }
                 }
             });
+
             stage.addActor(button);
 
             currentAngle += angleIncrement;
         }
+        correct = new Label("", skin);
+        correct.setPosition(250, 600); // Ajusta la posición según tu diseño
+        stage.addActor(correct);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -167,5 +235,51 @@ public class Individual implements Screen {
 
     @Override
     public void dispose() {
+    }
+    private int calcularPuntuacion(String palabra) {
+        int puntuacion = 0;
+        palabra = palabra.toLowerCase(); // Convertir la palabra a minúsculas
+        for (int i = 0; i < palabra.length(); i++) {
+            char letra = palabra.charAt(i);
+            if (valoresLetras.containsKey(letra)) {
+                puntuacion += valoresLetras.get(letra);
+            }
+        }
+        return puntuacion;
+    }
+    private static int binarySearch(String[] arr, String target) {
+        int left = 0;
+        int right = arr.length - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            int comparison = target.compareTo(arr[mid]);
+
+            // Si la palabra está en el medio del arreglo
+            if (comparison == 0) {
+                palabrasEncontradas.add(target);
+                updateLabelWithFoundWords();
+                return mid;
+            }
+            // Si la palabra está en la mitad izquierda del arreglo
+            else if (comparison < 0) {
+                right = mid - 1;
+            }
+            // Si la palabra está en la mitad derecha del arreglo
+            else {
+                left = mid + 1;
+            }
+        }
+
+        // Si la palabra no fue encontrada
+        return -1;
+    }
+    private static void updateLabelWithFoundWords() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Palabras encontradas:\n");
+        for (String palabra : palabrasEncontradas) {
+            sb.append(palabra).append("\n");
+        }
+        correct.setText(sb.toString());
     }
 }
