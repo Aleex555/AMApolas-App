@@ -4,6 +4,7 @@ import static javax.swing.UIManager.put;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,9 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.io.BufferedReader;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.FileHandler;
 
 import javax.swing.JFormattedTextField;
 
@@ -37,13 +41,17 @@ public class Individual implements Screen {
     // Lista para almacenar las palabras encontradas
     static List<String> palabrasEncontradas = new ArrayList<>();
     final Roscodrom game;
-    Skin skin;
-    Stage stage;
+    static Skin skin;
+    static Stage stage;
 
     Label outputLabel;
+    Label score;
     String filePath = "DISC2/DISC2-LP.txt";
     // Palabra a buscar
     String targetWord ;
+    int punt=0;
+
+
 
     OrthographicCamera camera;
     private static final Map<Character, Integer> valoresLetras = new HashMap<Character, Integer>() {{
@@ -65,8 +73,9 @@ public class Individual implements Screen {
 
     Set<Character> letrasPresionadas = new HashSet<>();
 
-    public Individual(final Roscodrom game) {
+    public Individual(final Roscodrom game, int n ) {
         this.game = game;
+        this.n = n;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 550, 880);
@@ -82,6 +91,24 @@ public class Individual implements Screen {
     public void show() {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
         stage = new Stage(new FitViewport(550, 880, camera));
+        correct = new Label("", skin);
+
+        correct = new Label("", skin);
+        correct.setWrap(true); // Habilitar el ajuste de texto automático
+        correct.setWidth(400); // Establecer el ancho máximo de la etiqueta
+        correct.setAlignment(Align.topLeft); // Alinear el texto hacia arriba a la izquierda
+
+        ScrollPane scrollPane = new ScrollPane(correct, skin);
+        scrollPane.setPosition(250, 700); // Ajustar la posición según tu diseño
+        scrollPane.setSize(100, 20); // Establecer las dimensiones del ScrollPane
+        scrollPane.setScrollingDisabled(false, true); // Habilitar el desplazamiento vertical
+
+
+        score = new Label("", skin);
+        score.setPosition(350, 750);
+        stage.addActor(score);
+// Agregar el ScrollPane al Stage
+        stage.addActor(scrollPane);
 
         TextButton main = new TextButton("Back", skin);
         main.setPosition(30, 810);
@@ -93,39 +120,48 @@ public class Individual implements Screen {
         });
         stage.addActor(main);
         TextButton envia = new TextButton("SEND", skin);
-        envia.setPosition(200, 130);
+        envia.setPosition(205, 130);
         envia.setSize(150, 150);
         envia.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                     targetWord= String.valueOf(outputLabel.getText());
-                try {
-                    // Abrir el archivo y crear un BufferedReader para leerlo línea por línea
-                    BufferedReader reader = new BufferedReader(new FileReader(Gdx.files.internal("assets/"+filePath).file()));
-                    String line;
+                // Abrir el archivo y crear un BufferedReader para leerlo línea por línea
+                FileHandle reader = Gdx.files.internal(filePath);
+                String line;
+                // Leer todas las líneas del archivo y almacenarlas en un arreglo de Strings
+                String text = reader.readString();
 
-                    // Leer todas las líneas del archivo y almacenarlas en un arreglo de Strings
-                    @SuppressWarnings("NewApi") String[] words = reader.lines().toArray(String[]::new);
+                String[] words = text.split("\r?\n");
 
-                    reader.close();
+                Arrays.sort(words);
+                int index = binarySearch(words, targetWord);
 
-                    Arrays.sort(words);
-                    int index = binarySearch(words, targetWord);
+                // Comprobar si la palabra fue encontrada
+                if (index != -1) {
 
-                    // Comprobar si la palabra fue encontrada
-                    if (index != -1) {
-                        System.out.println(calcularPuntuacion(String.valueOf(outputLabel.getText())));
-                        System.out.println("La palabra '" + targetWord + "' fue encontrada " );
+                    // Verificar si la palabra ya está presente en la etiqueta correct
+                    if (!correct.getText().toString().contains(targetWord)) {
+                        // Sumar puntos
+                        punt = punt + calcularPuntuacion(targetWord);
+                        System.out.println(punt);
+
+                        score.setText(String.valueOf(punt));
+
+
+
+
+                        // Actualizar la etiqueta correct con la palabra encontrada
+                        updateLabelWithFoundWords(targetWord);
                     } else {
-                        System.out.println("La palabra '" + targetWord + "' no fue encontrada ");
+                        System.out.println("La palabra '" + targetWord + "' ya fue encontrada anteriormente.");
                     }
-                    outputLabel.setText("");
-                    resetButtons();
-                    letrasPresionadas.clear();
-
-                } catch (IOException e) {
-                    System.err.println("Error al leer el archivo: " + e.getMessage());
+                } else {
+                    System.out.println("La palabra '" + targetWord + "' no fue encontrada.");
                 }
+                outputLabel.setText("");
+                resetButtons();
+                letrasPresionadas.clear();
 
                 calcularPuntuacion(String.valueOf(outputLabel.getText()));
 
@@ -159,8 +195,8 @@ public class Individual implements Screen {
         stage.addActor(outputLabel);
 
         // Agregar botones del abecedario
-        float centerX = 275;
-        float centerY = 200;
+        float centerX = 230;
+        float centerY = 150;
         float radius = 150;
         float angleIncrement = 360f / n;
         float currentAngle = 0f;
@@ -172,7 +208,7 @@ public class Individual implements Screen {
 
             TextButton button = new TextButton(String.valueOf(letra), skin,"default");
             button.setPosition(x, y);
-            button.setSize(2, 2);
+            button.setSize(100, 90);
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -195,9 +231,7 @@ public class Individual implements Screen {
 
             currentAngle += angleIncrement;
         }
-        correct = new Label("", skin);
-        correct.setPosition(250, 600); // Ajusta la posición según tu diseño
-        stage.addActor(correct);
+
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -208,11 +242,14 @@ public class Individual implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
-        game.font.getData().setScale(2);
+        game.font.getData().setScale(1.5f);
         game.font.setColor(1, 1, 1, 1);
         game.batch.begin();
-        game.font.draw(game.batch, "Individual", 150, 700);
+        game.font.draw(game.batch, "Score:", 270, 760);
+
+
         game.batch.end();
+
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
     }
@@ -258,7 +295,7 @@ public class Individual implements Screen {
             // Si la palabra está en el medio del arreglo
             if (comparison == 0) {
                 palabrasEncontradas.add(target);
-                updateLabelWithFoundWords();
+
                 return mid;
             }
             // Si la palabra está en la mitad izquierda del arreglo
@@ -274,12 +311,22 @@ public class Individual implements Screen {
         // Si la palabra no fue encontrada
         return -1;
     }
-    private static void updateLabelWithFoundWords() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Palabras encontradas:\n");
-        for (String palabra : palabrasEncontradas) {
-            sb.append(palabra).append("\n");
+    private static void updateLabelWithFoundWords(String word) {
+        // Verificar si la palabra ya está presente en la etiqueta correct
+        if (!correct.getText().toString().contains(word)) {
+            StringBuilder sb = new StringBuilder(correct.getText().toString()); // Obtener el texto actual de la etiqueta
+
+            // Agregar la palabra encontrada al texto de la etiqueta
+            sb.append(word).append("\n");
+
+            // Actualizar el texto de la etiqueta correct
+            correct.setText(sb.toString());
+            correct.setPosition(250, 600); // Ajustar la posición según tu diseño
+
+            // Agregar la etiqueta actualizada al stage si no está presente
+            if (!stage.getActors().contains(correct, true)) {
+                stage.addActor(correct);
+            }
         }
-        correct.setText(sb.toString());
     }
 }

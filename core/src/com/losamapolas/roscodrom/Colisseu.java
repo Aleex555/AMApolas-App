@@ -35,6 +35,7 @@ public class Colisseu implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new MainMenuScreen(game));
+
             }
         });
         main.setPosition(30,810);
