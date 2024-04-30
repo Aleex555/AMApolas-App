@@ -257,7 +257,7 @@ public class Individual implements Screen {
         game.font.getData().setScale(1.5f);
         game.font.setColor(1, 1, 1, 1);
         game.batch.begin();
-        game.font.draw(game.batch, "Score:", 270, 760);
+        game.font.draw(game.batch, "Punts:", 270, 760);
 
 
         game.batch.end();
@@ -322,7 +322,6 @@ public class Individual implements Screen {
             }
         }
 
-        // Si la palabra no fue encontrada
         return -1;
     }
     private static void updateLabelWithFoundWords(String word) {
