@@ -54,7 +54,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
 
 
 
-                FileHandle file = Gdx.files.external("perfil.json");
+                FileHandle file = Gdx.files.local("perfil.json");
 
 
                 if (file.exists()) {
@@ -84,7 +84,7 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-                FileHandle file = Gdx.files.external("perfil.json");
+                FileHandle file = Gdx.files.local("perfil.json");
 
 
                 if (file.exists()) {

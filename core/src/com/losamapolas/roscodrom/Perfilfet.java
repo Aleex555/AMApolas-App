@@ -49,6 +49,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
     String em;
     String tl;
     String avatar;
+    String api;
 
     public Perfilfet(final Roscodrom game) {
         this.game = game;
@@ -70,15 +71,8 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
 
 
-
-
-
-
-
-
-
         nickname = new TextField("", skin);
-        TextButton main = new TextButton("Back", skin);
+        TextButton main = new TextButton("Enrrere", skin);
 
         main.addListener(new ClickListener() {
             @Override
@@ -144,7 +138,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
 
 
 
-        FileHandle file = Gdx.files.external("perfil.json");
+        FileHandle file = Gdx.files.local("perfil.json");
 
 
 
@@ -155,8 +149,10 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
             // Convertir el contenido del archivo JSON en un objeto JSONObject
             JSONObject perfilJson = new JSONObject(jsonString);
 
+
             // Obtener los valores del JSON y colocarlos en los TextField
             if (perfilJson.has("nickname")) {
+                System.out.println("JSON creado: " + perfilJson.getString("nickname"));
                 nickname.setText(perfilJson.getString("nickname"));
             }
             if (perfilJson.has("email")) {
@@ -164,6 +160,9 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
             }
             if (perfilJson.has("phone_number")) {
                 tel.setText(perfilJson.getString("phone_number"));
+            }
+            if (perfilJson.has("api_key")) {
+                api=perfilJson.getString("api_key");
             }
             if (perfilJson.has("avatar")) {
                 Texture imagen = new Texture(Gdx.files.internal((perfilJson.getString("avatar"))));
@@ -185,7 +184,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
 
 
 
-        TextButton enviar = new TextButton("Update", skin);
+        TextButton enviar = new TextButton("Cambiar", skin);
 
 
         enviar.addListener(new ClickListener() {
@@ -197,6 +196,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
                 tl= tel!= null ? tel.getText() : "";
                 avatar = avatar != null ? avatar : "";
 
+
                 if(!nick.isEmpty()  || !em.isEmpty() || !tl.isEmpty()|| !avatar.isEmpty()){
                     JSONObject json = new JSONObject();
                     try {
@@ -206,19 +206,52 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
                         json.put("phone_number", tl);
                         json.put("avatar", avatar);
                         json.put("historial_partides",historial );
+                        json.put("api_key",api);
 
-                        String jsonString = json.toString();
 
-                        FileHandle file = Gdx.files.external("perfil.json");
-                        file.writeString(jsonString, false);
+
+
+
+                            String apiUrl = "https://roscodrom6.ieti.site/api/user/update";
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+
+
+
+                                    Gdx.app.postRunnable(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            NetworkUtils networkUtils = new NetworkUtils();
+                                            try {
+                                                networkUtils.post(apiUrl, json.toString());
+                                            } catch (Exception e) {
+                                                throw new RuntimeException(e);
+                                            }
+
+                                        }
+                                    });
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
 
 
 
                         } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
+                    String jsonString = json.toString();
 
+                    FileHandle file = Gdx.files.local("perfil.json");
+
+                    file.writeString(jsonString, false);
+                    System.out.println("JSON creado: " + jsonString);
                 }
+
 
 
 

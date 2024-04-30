@@ -45,7 +45,6 @@ public class Individual implements Screen {
     final Roscodrom game;
     static Skin skin;
     static Stage stage;
-
     Label outputLabel;
     Label score;
     String filePath = "DISC2/DISC2-LP.txt";
@@ -74,17 +73,16 @@ public class Individual implements Screen {
     Random random = new Random();
     char[] nuevaArray = new char[n];
     Set<Character> selectedLetters = new HashSet<>();
-
-
     Set<Character> letrasPresionadas = new HashSet<>();
 
     public Individual(final Roscodrom game, int n ) {
         this.game = game;
         this.n = n;
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 550, 880);
+
     }
+
     private void resetButtons() {
         for (Actor actor : stage.getActors()) {
             if (actor instanceof TextButton) {
@@ -124,7 +122,7 @@ public class Individual implements Screen {
 
 
 
-        TextButton main = new TextButton("Back", skin);
+        TextButton main = new TextButton("Enrrere", skin);
         main.setPosition(30, 810);
         main.addListener(new ClickListener() {
             @Override
@@ -133,7 +131,7 @@ public class Individual implements Screen {
             }
         });
         stage.addActor(main);
-        TextButton envia = new TextButton("SEND", skin);
+        TextButton envia = new TextButton("Envia", skin);
         envia.setPosition(205, 130);
         envia.setSize(150, 150);
         envia.addListener(new ClickListener() {
@@ -141,6 +139,7 @@ public class Individual implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                     targetWord= String.valueOf(outputLabel.getText());
                 // Abrir el archivo y crear un BufferedReader para leerlo línea por línea
+
                 FileHandle reader = Gdx.files.internal(filePath);
                 String line;
                 // Leer todas las líneas del archivo y almacenarlas en un arreglo de Strings

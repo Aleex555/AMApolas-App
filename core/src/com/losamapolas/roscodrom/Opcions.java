@@ -29,7 +29,7 @@ public class Opcions implements Screen {
     public void show() {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
         stage = new Stage(new FitViewport(550, 880, camera));
-        TextButton main = new TextButton("Back", skin);
+        TextButton main = new TextButton("Enrrere", skin);
 
         main.addListener(new ClickListener() {
             @Override

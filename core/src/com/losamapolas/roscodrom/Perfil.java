@@ -71,7 +71,7 @@ public class Perfil extends ApplicationAdapter implements Screen {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
 
         nickname = new TextField("", skin);
-        TextButton main = new TextButton("Back", skin);
+        TextButton main = new TextButton("Enrrere", skin);
 
         main.addListener(new ClickListener() {
             @Override
@@ -198,9 +198,17 @@ public class Perfil extends ApplicationAdapter implements Screen {
                                     NetworkUtils networkUtils = new NetworkUtils();
                                     final String response = networkUtils.post(apiUrl, json.toString());
                                     JSONObject jsonResponse = new JSONObject(response);
-                                    final String message = jsonResponse.getString("api_key");  // Asume que "message" es un campo que devuelve tu servidor
+                                    final String message = jsonResponse.getString("api_key");
 
-                                    // Ejecutar en el hilo de renderizado de libGDX
+                                    json.put("api_key", jsonResponse.getString("api_key"));
+                                    String jsonString = json.toString();
+
+                                    // Haz lo que necesites con la cadena JSON
+                                    System.out.println("JSON creado: " + jsonString);
+
+                                    FileHandle file = Gdx.files.local("perfil.json");
+                                    file.writeString(jsonString, false);
+
                                     Gdx.app.postRunnable(new Runnable() {
                                         @Override
                                         public void run() {
@@ -223,19 +231,6 @@ public class Perfil extends ApplicationAdapter implements Screen {
                     }
 
                     // Convertir el objeto JSON a String
-                    String jsonString = json.toString();
-
-                    // Haz lo que necesites con la cadena JSON
-                    System.out.println("JSON creado: " + jsonString);
-
-
-
-
-
-
-
-                    FileHandle file = Gdx.files.external("perfil.json");
-                    file.writeString(jsonString, false);
 
                 }
                 else {
