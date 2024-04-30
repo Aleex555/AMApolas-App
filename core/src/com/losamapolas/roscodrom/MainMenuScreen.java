@@ -3,6 +3,7 @@ package com.losamapolas.roscodrom;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -44,13 +45,19 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
         individual.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new Individual(game));
+                game.setScreen(new Nivel(game));
             }
         });
         multijugador.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (Gdx.files.internal("assets/perfil.json").exists()){
+
+
+
+                FileHandle file = Gdx.files.external("perfil.json");
+
+
+                if (file.exists()) {
                     game.setScreen(new Multijugador(game));
                 }
                 else {
@@ -76,7 +83,11 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
         perfil.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (Gdx.files.internal("perfil.json").exists()){
+
+                FileHandle file = Gdx.files.external("perfil.json");
+
+
+                if (file.exists()) {
                     game.setScreen(new Perfilfet(game));
 
                 }else {

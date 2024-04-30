@@ -4,6 +4,8 @@ import static javax.swing.UIManager.put;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -50,8 +52,10 @@ public class Individual implements Screen {
     // Palabra a buscar
     String targetWord ;
     int punt=0;
+    int vocal;
 
-
+    Music aciertoSound;
+    Music  errorSound;
 
     OrthographicCamera camera;
     private static final Map<Character, Integer> valoresLetras = new HashMap<Character, Integer>() {{
@@ -66,6 +70,7 @@ public class Individual implements Screen {
     char[] con = {'B', 'C', 'D', 'F', 'G', 'H', 'J', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V',  'X', 'Y', 'Z'};
     char[] voc = {'A', 'E', 'I', 'O', 'U'};
     int n = 10;
+
     Random random = new Random();
     char[] nuevaArray = new char[n];
     Set<Character> selectedLetters = new HashSet<>();
@@ -92,6 +97,8 @@ public class Individual implements Screen {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
         stage = new Stage(new FitViewport(550, 880, camera));
         correct = new Label("", skin);
+        aciertoSound = Gdx.audio.newMusic(Gdx.files.internal("correct.mp3"));
+        errorSound = Gdx.audio.newMusic(Gdx.files.internal("error.mp3"));
 
         correct = new Label("", skin);
         correct.setWrap(true); // Habilitar el ajuste de texto automático
@@ -107,8 +114,15 @@ public class Individual implements Screen {
         score = new Label("", skin);
         score.setPosition(350, 750);
         stage.addActor(score);
-// Agregar el ScrollPane al Stage
+
         stage.addActor(scrollPane);
+        if (n >= 6 && n <= 8) {
+            vocal = 2;
+        } else {
+            vocal = 3;
+        }
+
+
 
         TextButton main = new TextButton("Back", skin);
         main.setPosition(30, 810);
@@ -147,16 +161,15 @@ public class Individual implements Screen {
                         System.out.println(punt);
 
                         score.setText(String.valueOf(punt));
-
-
-
-
                         // Actualizar la etiqueta correct con la palabra encontrada
                         updateLabelWithFoundWords(targetWord);
+                        aciertoSound.play();
                     } else {
+                        errorSound.play();
                         System.out.println("La palabra '" + targetWord + "' ya fue encontrada anteriormente.");
                     }
                 } else {
+                    errorSound.play();
                     System.out.println("La palabra '" + targetWord + "' no fue encontrada.");
                 }
                 outputLabel.setText("");
@@ -168,7 +181,7 @@ public class Individual implements Screen {
             }
         });
         stage.addActor(envia);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < vocal; i++) {
             char selectedVowel;
             do {
                 selectedVowel = voc[random.nextInt(voc.length)];
@@ -178,7 +191,7 @@ public class Individual implements Screen {
         }
 
         // Agregar el resto de las consonantes aleatorias
-        for (int i = 4; i < n; i++) {
+        for (int i = vocal; i < n; i++) {
             char selectedConsonant;
             do {
                 selectedConsonant = con[random.nextInt(con.length)];
@@ -272,6 +285,8 @@ public class Individual implements Screen {
 
     @Override
     public void dispose() {
+        aciertoSound.dispose();
+        errorSound.dispose();
     }
     private int calcularPuntuacion(String palabra) {
         int puntuacion = 0;
