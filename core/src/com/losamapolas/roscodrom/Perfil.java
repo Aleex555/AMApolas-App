@@ -71,7 +71,7 @@ public class Perfil extends ApplicationAdapter implements Screen {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
 
         nickname = new TextField("", skin);
-        TextButton main = new TextButton("Enrrere", skin);
+        TextButton main = new TextButton("<----", skin);
 
         main.addListener(new ClickListener() {
             @Override
@@ -136,35 +136,6 @@ public class Perfil extends ApplicationAdapter implements Screen {
 
 
 
-
-//        for (int i = 1; i <= 4; i++) {
-//            final int imageIndex = i;
-//            Texture buttonImage = new Texture(Gdx.files.internal(i+".png"));
-//            TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
-//            buttonStyle.up = new TextureRegionDrawable(new TextureRegion(buttonImage));
-//            buttonStyle.font = font;
-//            TextButton a1 = new TextButton("", buttonStyle);
-//            a1.setSize(100, 100);
-//            a1.setPosition(0 +(i*100),200);
-//
-//            a1.addListener(new ClickListener() {
-//                @Override
-//                public void clicked(InputEvent event, float x, float y) {
-//
-//
-//                    String imagePath =imageIndex+ ".png";
-//
-//                    byte[] imageBytes = Gdx.files.internal(imagePath).readBytes();
-//
-//                    String base64Image = encodeImageToBase64(imageBytes);
-//                    avatar=imagePath;
-//                    //System.out.println(base64Image);
-//
-//                }
-//            });
-
-            //stage.addActor(a1);
-        //}
 
 
 
@@ -244,7 +215,7 @@ public class Perfil extends ApplicationAdapter implements Screen {
 
 
         main.setPosition(30,810);
-        enviar.setPosition(400,50);
+        enviar.setPosition(380,50);
 
 
 

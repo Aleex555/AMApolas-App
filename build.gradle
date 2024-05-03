@@ -31,6 +31,7 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.1'
+        wsVersion = '1.9.10.3'
     }
 
     repositories {
@@ -41,6 +42,7 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url "https://jitpack.io" }
+
     }
 
 }
@@ -55,7 +57,10 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
         implementation 'org.json:json:20210307'
-        
+
+        implementation "com.github.MrStahlfelge.gdx-websockets:common:$wsVersion"
+
+
     }
 }
 
@@ -73,7 +78,10 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
         implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
         implementation 'org.json:json:20210307'
-        
+
+        implementation "com.github.MrStahlfelge.gdx-websockets:common:$wsVersion"
+
+
     }
 }
 
@@ -118,6 +126,10 @@ project(":core") {
         implementation 'org.json:json:20210307'
         implementation 'org.java-websocket:Java-WebSocket:1.5.2'
         implementation 'com.squareup.okhttp3:okhttp:4.9.0'
-        
+
+
+        implementation "com.github.MrStahlfelge.gdx-websockets:core:$wsVersion"
+ 
+
     }
 }

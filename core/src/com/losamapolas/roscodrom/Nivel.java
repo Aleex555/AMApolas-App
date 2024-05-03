@@ -65,7 +65,7 @@ public class Nivel extends ApplicationAdapter implements Screen {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
 
         nickname = new TextField("", skin);
-        TextButton main = new TextButton("Enrrere", skin);
+        TextButton main = new TextButton("<----", skin);
 
         main.addListener(new ClickListener() {
             @Override
@@ -114,7 +114,7 @@ public class Nivel extends ApplicationAdapter implements Screen {
 
 
         main.setPosition(30,810);
-        enviar.setPosition(400,50);
+        enviar.setPosition(380,50);
 
 
 

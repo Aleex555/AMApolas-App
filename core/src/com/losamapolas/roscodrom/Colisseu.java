@@ -29,7 +29,7 @@ public class Colisseu implements Screen {
     public void show() {
         skin = new Skin(Gdx.files.internal("star-soldier-ui.json"));
         stage = new Stage(new FitViewport(550, 880, camera));
-        TextButton main = new TextButton("Enrrere", skin);
+        TextButton main = new TextButton("<----", skin);
 
         main.addListener(new ClickListener() {
             @Override

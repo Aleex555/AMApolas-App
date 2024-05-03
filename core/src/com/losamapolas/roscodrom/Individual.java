@@ -42,11 +42,13 @@ public class Individual implements Screen {
 
     // Lista para almacenar las palabras encontradas
     static List<String> palabrasEncontradas = new ArrayList<>();
+    float tiempoRestante = 60;
     final Roscodrom game;
     static Skin skin;
     static Stage stage;
     Label outputLabel;
     Label score;
+    Label timer;
     String filePath = "DISC2/DISC2-LP.txt";
     // Palabra a buscar
     String targetWord ;
@@ -98,6 +100,10 @@ public class Individual implements Screen {
         aciertoSound = Gdx.audio.newMusic(Gdx.files.internal("correct.mp3"));
         errorSound = Gdx.audio.newMusic(Gdx.files.internal("error.mp3"));
 
+        timer = new Label("", skin);
+        timer.setPosition(50, 700);
+        stage.addActor(timer);
+
         correct = new Label("", skin);
         correct.setWrap(true); // Habilitar el ajuste de texto automático
         correct.setWidth(400); // Establecer el ancho máximo de la etiqueta
@@ -120,9 +126,7 @@ public class Individual implements Screen {
             vocal = 3;
         }
 
-
-
-        TextButton main = new TextButton("Enrrere", skin);
+        TextButton main = new TextButton("<----", skin);
         main.setPosition(30, 810);
         main.addListener(new ClickListener() {
             @Override
@@ -245,6 +249,7 @@ public class Individual implements Screen {
         }
 
 
+
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -259,6 +264,17 @@ public class Individual implements Screen {
         game.batch.begin();
         game.font.draw(game.batch, "Punts:", 270, 760);
 
+        tiempoRestante -= delta;
+
+        timer.setText("TEMPS:  "+String.valueOf(Math.round(tiempoRestante)));
+
+
+        //game.font.draw(game.batch, "Tiempo restante: " + (int) tiempoRestante + " segundos", 50, 700);
+
+        if (tiempoRestante <= 0) {
+            game.setScreen(new GameOver(game,punt));
+            tiempoRestante = 0;
+        }
 
         game.batch.end();
 
@@ -284,8 +300,11 @@ public class Individual implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
+        skin.dispose();
         aciertoSound.dispose();
         errorSound.dispose();
+
     }
     private int calcularPuntuacion(String palabra) {
         int puntuacion = 0;

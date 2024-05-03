@@ -55,15 +55,15 @@ public class MainMenuScreen extends ApplicationAdapter implements Screen {
 
 
                 FileHandle file = Gdx.files.local("perfil.json");
+                game.setScreen(new InicioP(game));
 
+               // if (file.exists()) {
+                    //game.setScreen(new Multijugador(game));
+               // }
+               // else {
+                    //game.setScreen(new Perfil(game));
 
-                if (file.exists()) {
-                    game.setScreen(new Multijugador(game));
-                }
-                else {
-                    game.setScreen(new Perfil(game));
-
-                }
+               // }
 
             }
         });

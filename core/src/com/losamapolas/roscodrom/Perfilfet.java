@@ -72,7 +72,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
 
 
         nickname = new TextField("", skin);
-        TextButton main = new TextButton("Enrrere", skin);
+        TextButton main = new TextButton("<----", skin);
 
         main.addListener(new ClickListener() {
             @Override
@@ -265,7 +265,7 @@ public class Perfilfet extends ApplicationAdapter implements Screen {
 
 
         main.setPosition(30,810);
-        enviar.setPosition(400,50);
+        enviar.setPosition(380,50);
 
 
 
